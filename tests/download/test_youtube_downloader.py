@@ -15,7 +15,7 @@ youtube_test_config = {'format': 'bestaudio/best', 'quiet': True}
 class TestYoutubeDownloader(unittest.TestCase):
     def test_download(self):
         with TemporaryDirectory() as folder:
-            path = os.path.join(folder, 'temp.flc')
+            path = os.path.join(folder, 'temp.mp3')
 
             downloader = YoutubeDownloader(youtube_test_config)
             downloader.download(youtube_test_video_id, path)
