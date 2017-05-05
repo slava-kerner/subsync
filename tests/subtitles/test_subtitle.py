@@ -1,5 +1,4 @@
 import unittest
-from pysrt import SubRipFile
 
 from subsync.subtitles.subtitle import Subtitles
 
