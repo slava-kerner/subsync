@@ -2,7 +2,7 @@ import unittest
 import os
 from tempfile import TemporaryDirectory
 
-from tests.utils import run_integration_tests
+from tests.test_utils import run_integration_tests
 from subsync.download.youtube_downloader import YoutubeDownloader
 
 
