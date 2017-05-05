@@ -1,22 +1,25 @@
 from guess_language import guess_language
 import langid
+import langdetect
 
 
 class LanguageDetector:
-    all_methods = ['guess_language', 'langid']
+    all_methods = ['guess_language', 'langid', 'langdetect']
 
     def __init__(self, method=None, **kwargs):
         self.methods = [method] if method else self.all_methods
         self.config = kwargs
 
     def _detect(self, text, method):
+        prob = None
         if method == 'guess_language':
             lng = guess_language(text)
             if lng == 'UNKNOWN':
                 lng = None
-            prob = 1
         elif method == 'langid':
             lng, prob = langid.classify(text)
+        elif method == 'langdetect':
+            lng = langdetect.detect(text)
         else:
             raise Exception('method %s not supported' % method)
         return lng, prob

@@ -3,3 +3,4 @@ coverage
 pysrt
 guess_language-spirit
 langid
+langdetect
