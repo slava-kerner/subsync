@@ -2,3 +2,4 @@ youtube_dl
 coverage
 pysrt
 guess_language-spirit
+langid
