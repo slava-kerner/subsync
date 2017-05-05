@@ -19,6 +19,7 @@ class Downloader:
         raise NotImplementedError
 
 
+# parameters: https://github.com/rg3/youtube-dl/blob/master/youtube_dl/YoutubeDL.py#L129-L279
 class YoutubeDownloader(Downloader):
     def _download(self, video_id, path):
         settings = copy.deepcopy(self.settings)
