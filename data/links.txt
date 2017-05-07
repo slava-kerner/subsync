@@ -6,11 +6,26 @@ https://github.com/agermanidis/autosub
 IMDB
 http://imdbpy.sourceforge.net/
 https://github.com/alberanid/imdbpy/blob/master/setup.py
+https://github.com/manojmj92/imdb
+https://gist.github.com/jayrambhia/1678382
+https://github.com/liato/imdb/blob/master/imdb.py
+https://github.com/richardasaurus/imdb-pie/blob/master/src/imdbpie/imdbpie.py
+https://code.google.com/archive/p/metals/
+https://github.com/nandhp/python-imdb
 
-YOUTUBE
+VIDEO / YOUTUBE
 https://github.com/rg3/youtube-dl/blob/master/youtube_dl/YoutubeDL.py#L129-L279
 https://github.com/rg3/youtube-dl/blob/master/README.md#embedding-youtube-dl
 https://github.com/rg3/youtube-dl/blob/master/youtube_dl/downloader/common.py
+https://archive.org/details/feature_films
+
+YOUTUBE ADDING CC
+https://webapps.stackexchange.com/questions/17471/add-subtitles-to-a-video-of-another-user-on-youtube
+http://www.videoconverterfactory.com/tips/download-youtube-subtitles.html
+http://ncdae.org/resources/cheatsheets/youtube.php
+https://support.google.com/youtube/answer/2734698
+https://support.google.com/youtube/answer/2734796?hl=en
+https://github.com/opensubtitles/service.subtitles.opensubtitles_by_opensubtitles/blob/master/service.py
 
 VAD
 http://www.ofai.at/research/impml/projects/audiostreams/2015_interspeech.pdf
@@ -22,3 +37,6 @@ https://github.com/marsbroshok/VAD-python
 https://pypi.python.org/pypi/webrtcvad
 http://stackoverflow.com/questions/8284943/identifying-segments-when-a-person-is-speaking
 http://stackoverflow.com/questions/5062032/audio-analysis-to-detect-human-voice-gender-age-and-emotion-any-prior-open/
+
+KODI
+https://howtomediacenter.com/en/tutorial-how-to-enable-automatic-subtitles-on-kodi/
