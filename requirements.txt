@@ -6,3 +6,4 @@ langid
 langdetect
 requests
 selenium
+tqdm
