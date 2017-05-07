@@ -6,6 +6,11 @@ import requests
 from tqdm import tqdm
 import random
 import time
+import zipfile
+from tempfile import TemporaryDirectory
+import glob
+import shutil
+import json
 
 
 logger = logging.getLogger(__name__)
@@ -57,10 +62,10 @@ class OSCrawler:
         uas = LoadUserAgents()
         # print(uas)
         ua = None
+        driver = self._driver(output_folder=self.download_folder, proxy=proxy, user_agent=ua)
         for sub_id in tqdm(sub_ids, desc='downloading subs'):
             # ua = random.choice(uas)  # select a random user agent
             # print(ua)
-            driver = self._driver(output_folder=self.download_folder, proxy=proxy, user_agent=ua)
             # headers = {
             #     "Connection": "close",  # another way to cover tracks
             #     "User-Agent": ua
@@ -72,8 +77,8 @@ class OSCrawler:
                 logger.info('sucessfully downloading id=%s', sub_id)
             except:
                 logger.info('failed downloading id=%s', sub_id)
-            driver.quit()
-            time.sleep(10)
+            time.sleep(30)
+        driver.quit()
 
     @classmethod
     def _driver(cls, output_folder=None, proxy=None, user_agent=None):
@@ -84,7 +89,7 @@ class OSCrawler:
             chrome_options.add_argument('--proxy-server=%s' % proxy)
         if user_agent:
             chrome_options.add_argument('user-agent=%s' % user_agent)
-        chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
+        # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         chrome_options.add_argument("-disable-popup-blocking")
         chrome_options.add_argument("-incognito")
         chrome_driver_path = os.path.join(os.getcwd(), 'chromedriver_2_27')
@@ -105,3 +110,48 @@ def LoadUserAgents(uafile=USER_AGENTS_FILE):
                 uas.append(ua.strip()[1:-1-1])
     random.shuffle(uas)
     return uas
+
+
+class SubsOrganizer:
+    """ subs that were downloaded as .zip are ordered into folder. some metadata read, and stored as subs.json. """
+    def process(self, zip_path, folder_out):
+        with TemporaryDirectory() as temp_folder:
+            zipfile.ZipFile(zip_path, 'r').extractall(temp_folder)
+            meta_file = glob.glob(os.path.join(temp_folder, '*.nfo'))[0]
+            lang = self.parse_line(meta_file, 'Language')
+            is_single_file = self.parse_line(meta_file, 'Total').startswith('1')
+            is_srt = self.parse_line(meta_file, 'Format') == 'srt'
+            fps = self.parse_line(meta_file, 'FPS')
+            os.remove(meta_file)
+            if is_single_file and is_srt:
+                file_path = glob.glob(os.path.join(temp_folder, '*.*'))[0]
+                sub_path = shutil.copy(file_path, folder_out)
+                sub = {
+                    sub_path: {
+                        'fps': fps,
+                        'lang': lang,
+                    }
+                }
+            else:
+                sub = {}
+        return sub
+
+    def process_folder(self, folder_in, folder_out):
+        final_subs = dict()
+        for zip_path in glob.glob(os.path.join(folder_in, '*.zip')):
+            try:
+                final_sub = self.process(zip_path, folder_out)
+                if final_sub:
+                    final_subs.update(final_sub)
+            except:
+                pass
+        with open(os.path.join(folder_out, 'subs.json'), 'w') as f:
+            json.dump(final_subs, f, indent=4, sort_keys=True)
+        return final_subs
+
+    def parse_line(self, meta_file_path, key):
+        with open(meta_file_path) as f:
+            for line in f.readlines():
+                if line.split(':')[0][1:].strip() == key:
+                    return line.split(':')[-1][:-2].strip()
+        return None
