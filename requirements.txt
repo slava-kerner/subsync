@@ -4,3 +4,5 @@ pysrt
 guess_language-spirit
 langid
 langdetect
+requests
+selenium
