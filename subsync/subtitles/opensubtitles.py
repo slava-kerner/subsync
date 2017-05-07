@@ -4,6 +4,8 @@ import os
 from selenium import webdriver
 import requests
 from tqdm import tqdm
+import random
+import time
 
 
 logger = logging.getLogger(__name__)
@@ -50,9 +52,19 @@ class OSCrawler:
         return sub_ids
 
     def download(self, sub_ids):
-        driver = self._driver(output_folder=self.download_folder)
+        proxy = None#{"http": "http://username:p3ssw0rd@10.10.1.10:3128"}
         selector = 'body > div.content > div:nth-child(14) > div > div:nth-child(1) > h1 > a'
+        uas = LoadUserAgents()
+        # print(uas)
+        ua = None
         for sub_id in tqdm(sub_ids, desc='downloading subs'):
+            # ua = random.choice(uas)  # select a random user agent
+            # print(ua)
+            driver = self._driver(output_folder=self.download_folder, proxy=proxy, user_agent=ua)
+            # headers = {
+            #     "Connection": "close",  # another way to cover tracks
+            #     "User-Agent": ua
+            # }
             url = 'https://www.opensubtitles.org/en/subtitles/%s' % sub_id
             try:
                 driver.get(url)
@@ -60,16 +72,36 @@ class OSCrawler:
                 logger.info('sucessfully downloading id=%s', sub_id)
             except:
                 logger.info('failed downloading id=%s', sub_id)
-        driver.quit()
+            driver.quit()
+            time.sleep(10)
 
     @classmethod
-    def _driver(cls, output_folder=None):
+    def _driver(cls, output_folder=None, proxy=None, user_agent=None):
         chrome_options = webdriver.ChromeOptions()
         if output_folder:  # not sure this works
             chrome_options.add_experimental_option('prefs', {'download.default_directory': output_folder})
+        if proxy:
+            chrome_options.add_argument('--proxy-server=%s' % proxy)
+        if user_agent:
+            chrome_options.add_argument('user-agent=%s' % user_agent)
         chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         chrome_options.add_argument("-disable-popup-blocking")
         chrome_options.add_argument("-incognito")
         chrome_driver_path = os.path.join(os.getcwd(), 'chromedriver_2_27')
         driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver_path)
         return driver
+
+
+USER_AGENTS_FILE = 'data/uafile.txt'
+def LoadUserAgents(uafile=USER_AGENTS_FILE):
+    """
+    uafile : string
+        path to text file of user agents, one per line
+    """
+    uas = []
+    with open(uafile, 'rb') as uaf:
+        for ua in uaf.readlines():
+            if ua:
+                uas.append(ua.strip()[1:-1-1])
+    random.shuffle(uas)
+    return uas
