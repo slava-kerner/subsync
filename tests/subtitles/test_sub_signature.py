@@ -51,9 +51,26 @@ class TestSubSignature(unittest.TestCase):
         expected_sorted = SubSignature(intervals=[(-2, -1), (0, 0.5), (0.5, 16), (1, 2), (1.5, 3)])
         self.assertEqual(sig._sort(), expected_sorted)
 
+    def test_intersect(self):
+        sub1 = SubSignature(intervals=[(-2, -1), (0, 0.5), (1.5, 3)])
+        sub2 = SubSignature(intervals=[(-1.6, -1.4), (0.6, 1.4), (2, 4)])
+        expected_intersection = SubSignature(intervals=[(-1.6, -1.4), (2, 3)])
+        self.assertEqual(sub1.intersect(sub2), expected_intersection)
+
+        self.assertEqual(sub1.intersect(SubSignature()), SubSignature())  # intersecting empty results empty
+
+    def test_merge(self):
+        sub1 = SubSignature(intervals=[(-2, -1), (0, 0.5), (1.5, 3)])
+        sub2 = SubSignature(intervals=[(-1.6, -1.4), (0.6, 1.4), (2, 4)])
+        expected_merge = SubSignature(intervals=[(-2, -1), (0, 0.5), (0.6, 1.4), (1.5, 4)])
+        self.assertEqual(sub1.merge(sub2), expected_merge)
+
+        self.assertEqual(sub1.merge(SubSignature()), sub1)
+        self.assertEqual(SubSignature().merge(sub1), sub1)
+
     def test_dist_empty(self):
         empty = SubSignature()
         self.assertIsNone(self.sig.dist(empty))
 
-    # def test_dist_same(self):
-    #     self.assertEqual(1, self.sig.dist(self.sig))
+    def test_dist_same(self):
+        self.assertEqual(1, self.sig.dist(self.sig))
