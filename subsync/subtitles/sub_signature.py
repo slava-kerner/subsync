@@ -24,3 +24,10 @@ class SubSignature:
         """
         intervals = [(item.start.ordinal, item.end.ordinal) for item in subtitle]
         return SubSignature(intervals=intervals)
+
+    def __len__(self):
+        return len(self.intervals)
+
+    def __iter__(self):
+        for interval in self.intervals:
+            yield interval
