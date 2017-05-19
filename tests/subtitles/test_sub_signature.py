@@ -74,3 +74,7 @@ class TestSubSignature(unittest.TestCase):
 
     def test_dist_same(self):
         self.assertEqual(1, self.sig.dist(self.sig))
+
+    def test_dist_shifted(self):
+        dist_shifted_by_1_sec = self.sig.dist(self.sig + 1000)
+        self.assertTrue(.1 < dist_shifted_by_1_sec < .9)
