@@ -1,5 +1,6 @@
 import random
 import logging
+from tqdm import tqdm
 
 
 logger = logging.getLogger(__name__)
@@ -186,7 +187,7 @@ class SubSignature:
         :return: (a, b, dist) such that a * self + b = other  
         """
         best = (1, 0, 1)  # a=1, b=0, dist=1
-        for attempt in range(attempts):
+        for attempt in tqdm(range(attempts), desc='fitting'):
             random_window = int(.25 * len(self))
             idx1_self = random.randrange(0, random_window)
             idx1_other_expected = int(idx1_self * len(other) / len(self))
@@ -198,10 +199,12 @@ class SubSignature:
                                     min(idx1_other_expected + search_radius, len(other))):
                 for idx2_other in range(max(0, idx2_other_expected - search_radius),
                                         min(idx2_other_expected + search_radius, len(other))):
+                    # print('TYPE', type(self[idx1_self]), type(self[idx2_self]))
                     a, b = fit_linear(self[idx1_self][0], other[idx1_other][0], self[idx2_self][0], other[idx2_other][0])
                     dist = (a * self + b).dist(other)
                     if dist is not None and dist < best[2]:  # found better candidate
                         logger.debug('improved to dist=%f: a=%f, b=%f, ', dist, a, b)
+                        # print('improved to dist=%f: a=%f, b=%f, ', dist, a, b)
                         best = (a, b, dist)
         return best
 
