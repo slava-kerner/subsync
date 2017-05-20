@@ -7,3 +7,6 @@ langdetect
 requests
 selenium
 tqdm
+scipy
+matplotlib
+pydub
