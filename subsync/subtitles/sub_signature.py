@@ -67,7 +67,7 @@ class SubSignature:
         return self.__mul__(factor)
 
     def __str__(self):
-        return '\n'.join(['%s -> %s' % (interval[0], interval[1]) for interval in self.intervals])
+        return '\n'.join(['%2.2f,%2.2f' % (interval[0] / 1000, interval[1] / 1000) for interval in self.intervals])
 
     def _sort(self):
         """ sorts by start times, increasing. """
