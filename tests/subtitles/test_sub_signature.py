@@ -73,8 +73,14 @@ class TestSubSignature(unittest.TestCase):
         self.assertIsNone(self.sig.dist(empty))
 
     def test_dist_same(self):
-        self.assertEqual(1, self.sig.dist(self.sig))
+        self.assertEqual(0, self.sig.dist(self.sig))
 
     def test_dist_shifted(self):
         dist_shifted_by_1_sec = self.sig.dist(self.sig + 1000)
         self.assertTrue(.1 < dist_shifted_by_1_sec < .9)
+
+    def test_fit(self):
+        a, b, dist = self.sig.fit(1.1 * self.sig + 1000)
+        self.assertAlmostEqual(a, 1.1)
+        self.assertAlmostEqual(b, 1000)
+        self.assertAlmostEqual(dist, 0)

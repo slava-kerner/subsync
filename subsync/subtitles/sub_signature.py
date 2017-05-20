@@ -1,3 +1,10 @@
+import random
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
 class SubSignature:
     """
     describes signature of a subtitle (later, maybe, will describe also signature of a movie).
@@ -24,6 +31,12 @@ class SubSignature:
         """
         intervals = [(item.start.ordinal, item.end.ordinal) for item in subtitle]
         return SubSignature(intervals=intervals)
+
+    def __getitem__(self, item):
+        return self.intervals[item]
+
+    def __setitem__(self, key, value):
+        self.intervals[key] = value
 
     def __len__(self):
         return len(self.intervals)
@@ -163,5 +176,38 @@ class SubSignature:
 
         intersection_time = self.intersect(other).total_time()
         union_time = self.merge(other).total_time()
+        if union_time < 1e-10:
+            return None
 
-        return intersection_time / union_time
+        return (union_time - intersection_time) / union_time
+
+    def fit(self, other, attempts=100, search_radius=10):
+        """
+        :return: (a, b, dist) such that a * self + b = other  
+        """
+        best = (1, 0, 1)  # a=1, b=0, dist=1
+        for attempt in range(attempts):
+            random_window = int(.25 * len(self))
+            idx1_self = random.randrange(0, random_window)
+            idx1_other_expected = int(idx1_self * len(other) / len(self))
+
+            idx2_self = random.randrange(len(self) - random_window, len(self))
+            idx2_other_expected = int(idx2_self * len(other) / len(self))
+
+            for idx1_other in range(max(0, idx1_other_expected - search_radius),
+                                    min(idx1_other_expected + search_radius, len(other))):
+                for idx2_other in range(max(0, idx2_other_expected - search_radius),
+                                        min(idx2_other_expected + search_radius, len(other))):
+                    a, b = fit_linear(self[idx1_self][0], other[idx1_other][0], self[idx2_self][0], other[idx2_other][0])
+                    dist = (a * self + b).dist(other)
+                    if dist is not None and dist < best[2]:  # found better candidate
+                        logger.debug('improved to dist=%f: a=%f, b=%f, ', dist, a, b)
+                        best = (a, b, dist)
+        return best
+
+
+def fit_linear(x1, y1, x2, y2):
+    """ fits a, b s.t.: y1 = a*x1+b, y2 = a*x2+b. """
+    a = (y2 - y1) / (x2 - x1)
+    b = (x2 * y1 - x1 * y2) / (x2 - x1)
+    return a, b
