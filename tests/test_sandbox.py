@@ -2,31 +2,45 @@ import unittest
 import os
 import json
 import warnings
+from tqdm import tqdm
+from tempfile import TemporaryDirectory
 
 from pysrt import SubRipFile
-from tempfile import TemporaryDirectory
-from tqdm import tqdm
+from pydub import AudioSegment
 
 from tests.test_utils import run_integration_tests
 from subsync.subtitles.sub_signature import SubSignature
 from subsync.subtitles.subtitle import Subtitles
 from subsync.download.youtube_downloader import YoutubeDownloader
+from subsync.vad.vad_marsbroshok import VADMarsbroshok
 
-
-youtube_test_video_id = 'BaW_jenozKc'
 
 youtube_test_config = {'format': 'bestaudio/best', 'quiet': True}
 
+base_folder = '/home/slava/data/subs'
 
-# @unittest.skip('slow real test')
+@unittest.skip('slow real test')
 class Download(unittest.TestCase):
     def test_download_audio(self):
         ids = ['rNj-giwqn8c', 'RuBbvBPYCDU', 'ySa4fK9SqII']
-        out_folder = '/home/slava/data/subs/persona/audio'
+        out_folder = os.path.join(base_folder, 'persona', 'audio')
         downloader = YoutubeDownloader(youtube_test_config)
         for id in tqdm(ids, desc='downloading all videos'):
-            path = os.path.join(out_folder, '%s.mp3' % id)
+            path = os.path.join(out_folder, '%s.wav' % id)
             downloader.download(id, path)
+
+
+@unittest.skip('slow real test')
+class VAD(unittest.TestCase):
+    def test_vad_marsbroshok(self):
+        audio_path = os.path.join(base_folder, 'persona/audio/RuBbvBPYCDU.mp3')
+        audio = AudioSegment.from_file(audio_path)
+        audio[:10 * 60 * 1000].export(os.path.join(base_folder, 'persona/audio/crop_RuBbvBPYCDU.wav'), format='wav')
+
+        audio_path = os.path.join(base_folder, 'persona/audio/crop_RuBbvBPYCDU.wav')
+        signature = VADMarsbroshok(audio_path).signature()
+        print(signature)
+        # VADMarsbroshok(audio_path).plot_detected_speech_regions()
 
 
 @unittest.skip('slow real test')
@@ -34,7 +48,7 @@ class Fit(unittest.TestCase):
     @unittest.skip('slow real test')
     def test_fit_persona(self):
         warnings.simplefilter("ignore")
-        index_path = '/home/slava/data/subs/subs.json'
+        index_path = os.path.join(base_folder, 'subs.json')
         with open(index_path) as f:
             index = json.load(f)
 
