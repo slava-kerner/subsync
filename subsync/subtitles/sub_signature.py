@@ -1,4 +1,5 @@
 import random
+import os
 import logging
 from tqdm import tqdm
 
@@ -194,6 +195,18 @@ class SubSignature:
                 densified += [item]
 
         return SubSignature(intervals=densified)
+
+    def write(self, filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, 'w') as f:
+            text = '\n'.join(['%2.2f,%2.2f' % (interval[0], interval[1]) for interval in self.intervals])
+            f.write(text)
+
+    @classmethod
+    def read(self, filename):
+        with open(filename) as f:
+            intervals = [(float(line.split(',')[0]), float(line.split(',')[1].strip())) for line in f.readlines()]
+        return SubSignature(intervals=intervals)
 
     def fit(self, other, attempts=100, search_radius=10):
         """

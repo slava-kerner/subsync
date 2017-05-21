@@ -1,4 +1,6 @@
 import unittest
+import os
+from tempfile import TemporaryDirectory
 
 from subsync.subtitles.sub_signature import SubSignature
 from subsync.subtitles.subtitle import Subtitles
@@ -83,6 +85,13 @@ class TestSubSignature(unittest.TestCase):
         sub1 = SubSignature(intervals=[(0, 1), (2, 3)])
         self.assertEqual(sub1.densify(.9), sub1)
         self.assertEqual(sub1.densify(1.1), SubSignature(intervals=[(0, 3)]))
+
+    def test_read_write(self):
+        with TemporaryDirectory() as folder:
+            path = os.path.join(folder, 'sig.txt')
+            self.sig.write(path)
+            read = self.sig.read(path)
+            self.assertEqual(self.sig, read)
 
     def test_fit(self):
         a, b, dist = self.sig.fit(1.1 * self.sig + 1000)
