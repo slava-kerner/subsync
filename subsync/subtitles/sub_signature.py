@@ -3,6 +3,8 @@ import os
 import logging
 from tqdm import tqdm
 
+from pydub import AudioSegment
+
 
 logger = logging.getLogger(__name__)
 
@@ -234,6 +236,14 @@ class SubSignature:
                         # print('improved to dist=%f: a=%f, b=%f, ', dist, a, b)
                         best = (a, b, dist)
         return best
+
+    def store_audio_clips(self, audio_filename, out_folder):
+        """ clips by self.intervals from the audio track, stores in folder. """
+        os.makedirs(out_folder, exist_ok=True)
+        audio = AudioSegment.from_file(audio_filename)
+        for idx, interval in enumerate(self):
+            out_path = os.path.join(out_folder, '%s.wav' % idx)
+            audio[interval[0]: interval[1]].export(out_path)
 
 
 def fit_linear(x1, y1, x2, y2):

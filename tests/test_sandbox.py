@@ -41,7 +41,11 @@ class VAD(unittest.TestCase):
 
             audio_path = os.path.join(base_folder, 'persona/audio/crop_%s.wav' % id)
             signature[id] = VADMarsbroshok().process(audio_path)
+            signature[id].write(os.path.join(base_folder, 'persona/audio/signature_%s.txt' % id))
+
+            clips_folder = os.path.join(base_folder, 'persona/audio/speech_clips/%s' % id)
             print(signature[id])
+            signature[id].store_audio_clips(audio_path, clips_folder)
         # VADMarsbroshok(audio_path).plot_detected_speech_regions()
 
 
