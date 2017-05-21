@@ -1,7 +1,13 @@
+import numpy as np
 import random
 import os
 import logging
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+from matplotlib import collections as mc
+import pylab as pl
+from matplotlib.pyplot import cm
+
 
 from pydub import AudioSegment
 
@@ -251,3 +257,25 @@ def fit_linear(x1, y1, x2, y2):
     a = (y2 - y1) / (x2 - x1)
     b = (x2 * y1 - x1 * y2) / (x2 - x1)
     return a, b
+
+
+def plot(signatures):
+    """
+    :param signatures: label -> SubSignature 
+    """
+    rainbow = iter(cm.rainbow(np.linspace(0, 1, len(signatures))))
+
+    fig, ax = pl.subplots()
+    ax.set_title('VAD')
+    ax.set_xlabel('time [sec]')
+
+    for idx, (label, sig) in enumerate(signatures.items()):
+        lines = [[(interval[0] / 1000, -idx), (interval[1] / 1000, -idx)] for interval in sig]
+        colors = np.array(len(sig) * [next(rainbow)])
+        lc = mc.LineCollection(lines, colors=colors, linewidths=2, label=label)
+        ax.add_collection(lc)
+    ax.autoscale()
+    ax.legend()
+    ax.margins(0.1)
+
+    plt.show()
