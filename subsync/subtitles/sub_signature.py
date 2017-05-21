@@ -195,7 +195,6 @@ class SubSignature:
 
         return SubSignature(intervals=densified)
 
-
     def fit(self, other, attempts=100, search_radius=10):
         """
         :return: (a, b, dist) such that a * self + b = other  
@@ -214,7 +213,8 @@ class SubSignature:
                 for idx2_other in range(max(0, idx2_other_expected - search_radius),
                                         min(idx2_other_expected + search_radius, len(other))):
                     # print('TYPE', type(self[idx1_self]), type(self[idx2_self]))
-                    a, b = fit_linear(self[idx1_self][0], other[idx1_other][0], self[idx2_self][0], other[idx2_other][0])
+                    a, b = fit_linear(self[idx1_self][0], other[idx1_other][0],
+                                      self[idx2_self][0], other[idx2_other][0])
                     dist = (a * self + b).dist(other)
                     if dist is not None and dist < best[2]:  # found better candidate
                         logger.debug('improved to dist=%f: a=%f, b=%f, ', dist, a, b)
