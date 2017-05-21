@@ -38,7 +38,7 @@ class TestOSCrawler(unittest.TestCase):
 class TestSubsOrganizer(unittest.TestCase):
     def test_organize(self):
         organizer = SubsOrganizer()
-        organizer.process_folder('/home/slava/Downloads', subs_folder)
+        organizer.process_folder('/home/slava/data/subs', subs_folder)
 
 
 @unittest.skipUnless(run_integration_tests(), '')

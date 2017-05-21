@@ -119,6 +119,7 @@ class SubsOrganizer:
             zipfile.ZipFile(zip_path, 'r').extractall(temp_folder)
             meta_file = glob.glob(os.path.join(temp_folder, '*.nfo'))[0]
             lang = self.parse_line(meta_file, 'Language')
+            id = self.parse_line(meta_file, 'Link').split('/')[-1]
             is_single_file = self.parse_line(meta_file, 'Total').startswith('1')
             is_srt = self.parse_line(meta_file, 'Format') == 'srt'
             fps = self.parse_line(meta_file, 'FPS')
@@ -127,7 +128,8 @@ class SubsOrganizer:
                 file_path = glob.glob(os.path.join(temp_folder, '*.*'))[0]
                 sub_path = shutil.copy(file_path, folder_out)
                 sub = {
-                    sub_path: {
+                    id: {
+                        'path': sub_path,
                         'fps': fps,
                         'lang': lang,
                     }
@@ -138,7 +140,7 @@ class SubsOrganizer:
 
     def process_folder(self, folder_in, folder_out):
         final_subs = dict()
-        for zip_path in glob.glob(os.path.join(folder_in, '*.zip')):
+        for zip_path in tqdm(glob.glob(os.path.join(folder_in, '*.zip')), desc='processing downloaded subs'):
             try:
                 final_sub = self.process(zip_path, folder_out)
                 if final_sub:
