@@ -161,7 +161,7 @@ class VADMarsbroshok(VAD):
 
     def _process(self, wave_input_filename):
         """ returns SubSignature. """
-        self._read_wav(wave_input_filename)._convert_to_mono()
+        self._read_wav(wave_input_filename)
 
         detections = self.detect_speech()
 

@@ -1,5 +1,3 @@
-import os
-from tempfile import TemporaryDirectory
 import subsync.utils.audio
 
 
@@ -15,6 +13,7 @@ class VAD:
             audio_filename = fixed_audio_filename
 
         sig = self._process(audio_filename)
+        # sig = filter_by_binary_detector(sig, audio_filename)
         sig = sig.densify(MIN_DIST_TO_DENSIFY_MS)
         return sig
 
