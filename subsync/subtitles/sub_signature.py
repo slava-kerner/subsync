@@ -182,6 +182,20 @@ class SubSignature:
 
         return (union_time - intersection_time) / union_time
 
+    def densify(self, threshold_ms):
+        if len(self) == 0:
+            return SubSignature()
+
+        densified = [self[0]]
+        for item in self[1:]:
+            if item[0] < densified[-1][1] + threshold_ms:  # close => densify
+                densified[-1] = (densified[-1][0], item[1])
+            else:
+                densified += [item]
+
+        return SubSignature(intervals=densified)
+
+
     def fit(self, other, attempts=100, search_radius=10):
         """
         :return: (a, b, dist) such that a * self + b = other  

@@ -79,6 +79,11 @@ class TestSubSignature(unittest.TestCase):
         dist_shifted_by_1_sec = self.sig.dist(self.sig + 1000)
         self.assertTrue(.1 < dist_shifted_by_1_sec < .9)
 
+    def test_densify(self):
+        sub1 = SubSignature(intervals=[(0, 1), (2, 3)])
+        self.assertEqual(sub1.densify(.9), sub1)
+        self.assertEqual(sub1.densify(1.1), SubSignature(intervals=[(0, 3)]))
+
     def test_fit(self):
         a, b, dist = self.sig.fit(1.1 * self.sig + 1000)
         self.assertAlmostEqual(a, 1.1)
