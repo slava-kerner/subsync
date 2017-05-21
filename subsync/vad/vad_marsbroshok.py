@@ -3,13 +3,14 @@ import scipy.io.wavfile as wf
 import matplotlib.pyplot as plt
 
 from subsync.subtitles.sub_signature import SubSignature
+from subsync.vad.vad import VAD
 
 
-class VADMarsbroshok:
+class VADMarsbroshok(VAD):
     """ Use signal energy to detect voice activity in wav file """
 
-    def __init__(self, wave_input_filename):
-        self._read_wav(wave_input_filename)._convert_to_mono()
+    def __init__(self):
+        # TODO take to config
         self.sample_window = 0.02  # original values: 0.02 == 20 ms
         self.sample_overlap = 0.01  # original values: 0.01 == 10ms
         self.speech_window = 0.5  # original values: 0.5 == half a second
@@ -158,10 +159,14 @@ class VADMarsbroshok:
         detected_windows[:, 1] = self._smooth_speech_detection(detected_windows)
         return detected_windows
 
-    def signature(self):
+    def _process(self, wave_input_filename):
         """ returns SubSignature. """
+        self._read_wav(wave_input_filename)._convert_to_mono()
+
         detections = self.detect_speech()
+
         speech_labels = self.convert_windows_to_readible_labels(detections)
+
         intervals = [(1000 * interval['speech_begin'], 1000 * interval['speech_end']) for interval in speech_labels]
         signature = SubSignature(intervals=intervals)
         return signature

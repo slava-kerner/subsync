@@ -40,7 +40,7 @@ class VAD(unittest.TestCase):
             # audio[:10 * 60 * 1000].export(os.path.join(base_folder, 'persona/audio/crop_%s.wav' % id), format='wav')
 
             audio_path = os.path.join(base_folder, 'persona/audio/crop_%s.wav' % id)
-            signature[id] = VADMarsbroshok(audio_path).signature()
+            signature[id] = VADMarsbroshok().process(audio_path)
             print(signature[id])
         # VADMarsbroshok(audio_path).plot_detected_speech_regions()
 
