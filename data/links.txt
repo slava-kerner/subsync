@@ -2,6 +2,8 @@ SUBS
 https://github.com/thongdong7/subfind
 https://github.com/agonzalezro/python-opensubtitles
 https://github.com/agermanidis/autosub
+https://www.opensubtitles.org/en/support#vip
+https://github.com/vankasteelj/opensubtitles-api/blob/master/lib/opensubtitles.js
 
 IMDB
 http://imdbpy.sourceforge.net/
@@ -35,8 +37,12 @@ http://stackoverflow.com/questions/32594316/is-there-a-fast-way-to-find-not-nece
 https://github.com/mwv/vad
 https://github.com/marsbroshok/VAD-python
 https://pypi.python.org/pypi/webrtcvad
+https://github.com/wiseman/py-webrtcvad/blob/master/example.py
 http://stackoverflow.com/questions/8284943/identifying-segments-when-a-person-is-speaking
 http://stackoverflow.com/questions/5062032/audio-analysis-to-detect-human-voice-gender-age-and-emotion-any-prior-open/
+
+AUDIO
+https://docs.python.org/3.2/library/audioop.html
 
 KODI
 https://howtomediacenter.com/en/tutorial-how-to-enable-automatic-subtitles-on-kodi/
