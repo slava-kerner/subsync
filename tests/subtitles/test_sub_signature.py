@@ -102,5 +102,5 @@ class TestSubSignature(unittest.TestCase):
     def test_crop(self):
         sub = SubSignature(intervals=[(-2, -1), (0, 0.5), (1.5, 3)])
         self.assertEqual(sub.crop(-1.5, 1), SubSignature(intervals=[(-1.5, -1), (0, 0.5)]))
-        self.assertEqual(sub.crop(start=-1.5), SubSignature(intervals=[(-1.5, -1), (0, 0.5), (1.5, 3)]))
-        self.assertEqual(sub.crop(end=1), SubSignature(intervals=[(-2, -1), (0, 0.5)]))
+        self.assertEqual(sub.crop(start_ms=-1.5), SubSignature(intervals=[(-1.5, -1), (0, 0.5), (1.5, 3)]))
+        self.assertEqual(sub.crop(end_ms=1), SubSignature(intervals=[(-2, -1), (0, 0.5)]))
