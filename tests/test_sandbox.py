@@ -40,6 +40,18 @@ class Subs(unittest.TestCase):
         subsync.subtitles.sub_signature.plot(subs.signatures_with_labels)
         subs.visualise_signature_distances()
 
+        # fit:
+        some_sub_id = list(subs.signatures.keys())[0]
+        ref_sig = SubSignature(subtitle=subs.sub(some_sub_id))
+        fitted_folder = os.path.join(base_folder, 'fitted')
+        fitted = subs.fit(ref_sig, fitted_folder)
+        with open(os.path.join(fitted_folder, 'subs.json'), 'w') as f:
+            json.dump(fitted.subs, f, indent=4, sort_keys=True)
+
+        # visualise fitted:
+        subsync.subtitles.sub_signature.plot(fitted.signatures_with_labels)
+        fitted.visualise_signature_distances()
+
 
 @unittest.skip('slow real test')
 class Download(unittest.TestCase):

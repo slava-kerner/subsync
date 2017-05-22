@@ -1,11 +1,16 @@
 import os
 import matplotlib.pyplot as plt
+import logging
 from matplotlib import collections as mc
 import pylab as pl
 from matplotlib.pyplot import cm
+from tqdm import tqdm
 
 from subsync.subtitles.subtitle import Subtitles
 from subsync.subtitles.sub_signature import SubSignature
+
+
+logger = logging.getLogger(__name__)
 
 
 class MovieSubs:
@@ -17,6 +22,10 @@ class MovieSubs:
         """
         self.movie = movie
         self.subs = subs
+
+    def sub(self, sub_id):
+        subtitle = self.subs[sub_id]
+        return Subtitles.open(path=subtitle['path'], language=subtitle['lang'], fps=subtitle['fps'])
 
     @property
     def signatures(self):
@@ -61,3 +70,19 @@ class MovieSubs:
         plt.scatter(xs, ys, c=colors)
         plt.title('movie: "%s"' % self.movie.name)
         plt.show()
+
+    def fit(self, ref_sig, output_folder):
+        os.makedirs(output_folder, exist_ok=True)
+        signatures = self.signatures
+        fitted_subs = {}
+        for sub_id, sig in tqdm(signatures.items()):
+            sub = self.sub(sub_id)
+            a, b, dist = sig.fit(ref_sig, attempts=20)
+            logger.debug('a=%f, b=%f, dist=%f', a, b, dist)
+            sub = a * sub + b
+            sub_info = self.subs[sub_id]
+            out_path = os.path.join(output_folder, os.path.basename(sub_info['path']))
+            sub.save(out_path)
+            fitted_subs[sub_id] = sub_info.copy()
+            fitted_subs[sub_id]['path'] = out_path
+        return MovieSubs(movie=self.movie, subs=fitted_subs)
