@@ -257,6 +257,7 @@ class SubSignature:
         limits = SubSignature(intervals=[(start, end)])
         return self.intersect(limits)
 
+
 def fit_linear(x1, y1, x2, y2):
     """ fits a, b s.t.: y1 = a*x1+b, y2 = a*x2+b. """
     a = (y2 - y1) / (x2 - x1)
@@ -269,7 +270,6 @@ def plot(signatures):
     :param signatures: label -> SubSignature 
     """
     rainbow = iter(cm.rainbow(np.linspace(0, 1, len(signatures))))
-
     fig, ax = pl.subplots()
     ax.set_title('VAD')
     ax.set_xlabel('time [sec]')
@@ -282,5 +282,4 @@ def plot(signatures):
     ax.autoscale()
     ax.legend()
     ax.margins(0.1)
-
     plt.show()

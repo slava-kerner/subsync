@@ -40,9 +40,17 @@ class Subs(unittest.TestCase):
         subsync.subtitles.sub_signature.plot(subs.signatures_with_labels)
         subs.visualise_signature_distances()
 
+        # select reference signature:
+        ref_from_audio = True
+        if ref_from_audio:
+            id = 'rNj-giwqn8c'
+            agressiveness = 3
+            ref_sig = SubSignature.read(os.path.join(base_folder, 'persona/audio/webrtc%s_%s.txt' % (agressiveness, id)))
+        else:  # from some other sub
+            some_sub_id = list(subs.signatures.keys())[0]
+            ref_sig = SubSignature(subtitle=subs.sub(some_sub_id))
+
         # fit:
-        some_sub_id = list(subs.signatures.keys())[0]
-        ref_sig = SubSignature(subtitle=subs.sub(some_sub_id))
         fitted_folder = os.path.join(base_folder, 'fitted')
         fitted = subs.fit(ref_sig, fitted_folder)
         with open(os.path.join(fitted_folder, 'subs.json'), 'w') as f:
@@ -68,13 +76,13 @@ class VAD(unittest.TestCase):
     def test_vad(self):
         signature = dict()
         dest_rate = 8000
-        for id in persona_youtube_ids[:1]:  # HACK
-            audio_path = os.path.join(base_folder, 'persona/audio/%s.mp3' % id)
-            audio = AudioSegment.from_file(audio_path)
+        for id in persona_youtube_ids:
             cropped_path = os.path.join(base_folder, 'persona/audio/crop_%s.wav' % id)
             if not os.path.exists(cropped_path):
+                audio_path = os.path.join(base_folder, 'persona/audio/%s.mp3' % id)
+                audio = AudioSegment.from_file(audio_path)
                 print('converting to wav:')
-                audio[:10 * 60 * 1000].export(cropped_path, format='wav')
+                audio[:100 * 60 * 1000].export(cropped_path, format='wav')
 
             downsampled_cropped_path = os.path.join(base_folder, 'persona/audio/downsampled_crop_%s.wav' % id)
             if not os.path.exists(downsampled_cropped_path):
@@ -87,12 +95,16 @@ class VAD(unittest.TestCase):
                 make_mono(downsampled_cropped_path, mono_downsampled_cropped_path)
 
             print('extracting signature:')
-            signature[id] = VADMarsbroshok().process(mono_downsampled_cropped_path)
-            signature[id].write(os.path.join(base_folder, 'persona/audio/mb_%s.txt' % id))
+            output_path = os.path.join(base_folder, 'persona/audio/mb_%s.txt' % id)
+            if not os.path.exists(output_path):
+                signature[id] = VADMarsbroshok().process(mono_downsampled_cropped_path)
+                signature[id].write(output_path)
 
             for agressiveness in range(4):
-                signature[id] = VADWebrtc(agressiveness=agressiveness).process(mono_downsampled_cropped_path)
-                signature[id].write(os.path.join(base_folder, 'persona/audio/webrtc%s_%s.txt' % (agressiveness, id)))
+                output_path = os.path.join(base_folder, 'persona/audio/webrtc%s_%s.txt' % (agressiveness, id))
+                if not os.path.exists(output_path):
+                    signature[id] = VADWebrtc(agressiveness=agressiveness).process(mono_downsampled_cropped_path)
+                    signature[id].write(output_path)
 
             # print('storing clips:')
             # clips_folder = os.path.join(base_folder, 'persona/audio/speech_clips/%s' % id)
