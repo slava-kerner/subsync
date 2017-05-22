@@ -18,12 +18,28 @@ from subsync.utils.audio import make_mono, downsample
 from subsync.download.youtube_downloader import YoutubeDownloader
 from subsync.vad.vad_marsbroshok import VADMarsbroshok
 from subsync.vad.vad_webrtc import VADWebrtc
+from subsync.subtitles.opensubtitles import SubsOrganizer
+from subsync.subtitles.movie_subs import MovieSubs
+from subsync.movies.movie import Movie
 
 
 youtube_test_config = {'format': 'bestaudio/best', 'quiet': True}
 
 base_folder = '/home/slava/data/subs'
 persona_youtube_ids = ['rNj-giwqn8c', 'RuBbvBPYCDU', 'ySa4fK9SqII']
+
+
+class Subs(unittest.TestCase):
+    def test_get_subs(self):
+        # subs_folder = '/home/slava/data/subs'
+        movie = Movie(name='persona', imdb_id='0060827')
+        # TODO download
+        organizer = SubsOrganizer()
+        subs_index = organizer.process_folder(base_folder, base_folder)
+        subs = MovieSubs(movie=movie, subs=subs_index)
+        subsync.subtitles.sub_signature.plot(subs.signatures_with_labels)
+        subs.visualise_signature_distances()
+
 
 @unittest.skip('slow real test')
 class Download(unittest.TestCase):
