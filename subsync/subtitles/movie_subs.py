@@ -72,13 +72,15 @@ class MovieSubs:
         plt.show()
 
     def fit(self, ref_sig, output_folder):
+        start_ms, end_ms = ref_sig[0][0], ref_sig[-1][1]
         os.makedirs(output_folder, exist_ok=True)
         signatures = self.signatures
         fitted_subs = {}
         for sub_id, sig in tqdm(signatures.items()):
             sub = self.sub(sub_id)
-            a, b, dist = sig.fit(ref_sig, attempts=20)
+            a, b, dist = sig.crop(start_ms, end_ms).fit(ref_sig, attempts=20)
             logger.debug('a=%f, b=%f, dist=%f', a, b, dist)
+            # print('a=%f, b=%f, dist=%f' % (a, b, dist))
             sub = a * sub + b
             sub_info = self.subs[sub_id]
             out_path = os.path.join(output_folder, os.path.basename(sub_info['path']))
