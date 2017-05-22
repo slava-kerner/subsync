@@ -251,6 +251,11 @@ class SubSignature:
             out_path = os.path.join(out_folder, '%s.wav' % idx)
             audio[interval[0]: interval[1]].export(out_path)
 
+    def crop(self, start_ms=None, end_ms=None):
+        start = start_ms or -1e10
+        end = end_ms or 1e10
+        limits = SubSignature(intervals=[(start, end)])
+        return self.intersect(limits)
 
 def fit_linear(x1, y1, x2, y2):
     """ fits a, b s.t.: y1 = a*x1+b, y2 = a*x2+b. """

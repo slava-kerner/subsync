@@ -98,3 +98,9 @@ class TestSubSignature(unittest.TestCase):
         self.assertAlmostEqual(a, 1.1)
         self.assertAlmostEqual(b, 1000)
         self.assertAlmostEqual(dist, 0)
+
+    def test_crop(self):
+        sub = SubSignature(intervals=[(-2, -1), (0, 0.5), (1.5, 3)])
+        self.assertEqual(sub.crop(-1.5, 1), SubSignature(intervals=[(-1.5, -1), (0, 0.5)]))
+        self.assertEqual(sub.crop(start=-1.5), SubSignature(intervals=[(-1.5, -1), (0, 0.5), (1.5, 3)]))
+        self.assertEqual(sub.crop(end=1), SubSignature(intervals=[(-2, -1), (0, 0.5)]))
