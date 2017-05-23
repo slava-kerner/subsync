@@ -10,3 +10,7 @@ tqdm
 scipy
 matplotlib
 pydub
+apiclient
+google-api-python-client
+oauth2client
+httplib2
