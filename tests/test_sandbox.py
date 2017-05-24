@@ -43,7 +43,7 @@ class Subs(unittest.TestCase):
         # select reference signature:
         ref_from_audio = True
         if ref_from_audio:
-            id = 'rNj-giwqn8c'
+            id = 'ySa4fK9SqII'
             agressiveness = 3
             ref_sig = SubSignature.read(os.path.join(base_folder, 'persona/audio/webrtc%s_%s.txt' % (agressiveness, id)))
         else:  # from some other sub
@@ -61,7 +61,7 @@ class Subs(unittest.TestCase):
         fitted.visualise_signature_distances()
 
 
-@unittest.skip('slow real test')
+# @unittest.skip('slow real test')
 class Download(unittest.TestCase):
     def test_download_audio(self):
         out_folder = os.path.join(base_folder, 'persona', 'audio')
@@ -70,6 +70,11 @@ class Download(unittest.TestCase):
             path = os.path.join(out_folder, '%s.wav' % id)
             downloader.download(id, path)
 
+    def test_download_video(self):
+        downloader = YoutubeDownloader({})
+        out_folder = os.path.join(base_folder, 'persona', 'video')
+        id = 'ySa4fK9SqII'
+        downloader.download(id, os.path.join(out_folder, id + '.mp4'))
 
 # @unittest.skip('slow real test')
 class VAD(unittest.TestCase):
