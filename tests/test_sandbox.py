@@ -11,6 +11,7 @@ from pysrt import SubRipFile
 from pydub import AudioSegment
 
 from tests.test_utils import run_integration_tests
+from subsync.subtitles.opensubtitles import OSCrawler, SubsOrganizer
 import subsync.subtitles.sub_signature
 from subsync.subtitles.sub_signature import SubSignature
 from subsync.subtitles.subtitle import Subtitles
@@ -34,21 +35,34 @@ movies = {
     },
     'once lived a singing blackbird': {
         'imdb_id': '0151035',
-        'youtube': ['J9tutemoudU', 'kpGZe_S6KWk', 'QICFqs3r9dk']
+        'youtube': ['kpGZe_S6KWk', 'J9tutemoudU', 'QICFqs3r9dk']
     }
 }
 
 name = 'once lived a singing blackbird'
 
+video_folder = os.path.join(base_folder, name, 'video')
+audio_folder = os.path.join(base_folder, name, 'audio')
+vad_folder = os.path.join(base_folder, name, 'vad')
+sub_folder = os.path.join(base_folder, name, 'subs')
+
 
 class Subs(unittest.TestCase):
+    movie = Movie(name=name, imdb_id=movies[name]['imdb_id'])
+
+    def test_download(self):
+        crawler = OSCrawler(download_folder=sub_folder)
+        crawler.imdb_id_to_os_id(movies[name]['imdb_id'])
+        subs = crawler.imdb_id_to_subs(movies[name]['imdb_id'])
+        print('sub_id:', subs)
+        crawler.download(subs)
+        SubsOrganizer().process_folder(sub_folder, sub_folder)
+
     def test_get_subs(self):
         # subs_folder = '/home/slava/data/subs'
-        movie = Movie(name=name, imdb_id=movies[name]['imdb_id'])
         # TODO download
-        organizer = SubsOrganizer()
-        subs_index = organizer.process_folder(base_folder, base_folder)
-        subs = MovieSubs(movie=movie, subs=subs_index)
+        subs_index = SubsOrganizer().process_folder(sub_folder, sub_folder)
+        subs = MovieSubs(movie=self.movie, subs=subs_index)
         subsync.subtitles.sub_signature.plot(subs.signatures_with_labels)
         subs.visualise_signature_distances()
 
@@ -57,7 +71,7 @@ class Subs(unittest.TestCase):
         if ref_from_audio:
             id = movies[name]['youtube'][0]
             agressiveness = 3
-            ref_sig = SubSignature.read(os.path.join(base_folder, name, 'audio', 'webrtc%s_%s.txt' % (agressiveness, id)))
+            ref_sig = SubSignature.read(os.path.join(vad_folder, 'webrtc%s_%s.txt' % (agressiveness, id)))
         else:  # from some other sub
             some_sub_id = list(subs.signatures.keys())[0]
             ref_sig = SubSignature(subtitle=subs.sub(some_sub_id))
@@ -76,51 +90,48 @@ class Subs(unittest.TestCase):
 # @unittest.skip('slow real test')
 class Download(unittest.TestCase):
     def test_download_audio(self):
-        out_folder = os.path.join(base_folder, name, 'audio')
         downloader = YoutubeDownloader(youtube_test_config)
         for id in tqdm(movies[name]['youtube'], desc='downloading all audios'):
-            path = os.path.join(out_folder, '%s.wav' % id)
+            path = os.path.join(audio_folder, '%s.wav' % id)
             downloader.download(id, path)
 
     def test_download_video(self):
         downloader = YoutubeDownloader({})
-        out_folder = os.path.join(base_folder, name, 'video')
         for id in tqdm(movies[name]['youtube'], desc='downloading all videos'):
-            downloader.download(id, os.path.join(out_folder, '%s.mp4' % id))
+            downloader.download(id, os.path.join(video_folder, '%s.mp4' % id))
 
 
 # @unittest.skip('slow real test')
 class VAD(unittest.TestCase):
     def test_vad(self):
-        folder = os.path.join(base_folder, name, 'audio')
         signature = dict()
         dest_rate = 8000
-        for id in movies[name]['youtube']:
-            cropped_path = os.path.join(folder, 'crop_%s.wav' % id)
+        for id in tqdm(movies[name]['youtube'], desc='VAD'):
+            cropped_path = os.path.join(audio_folder, 'crop_%s.wav' % id)
             if not os.path.exists(cropped_path):
-                audio_path = os.path.join(folder, '%s.mp3' % id)
+                audio_path = os.path.join(audio_folder, '%s.wav' % id)
                 audio = AudioSegment.from_file(audio_path)
                 print('converting to wav:')
                 audio[:100 * 60 * 1000].export(cropped_path, format='wav')
 
-            downsampled_cropped_path = os.path.join(folder, 'downsampled_crop_%s.wav' % id)
+            downsampled_cropped_path = os.path.join(audio_folder, 'downsampled_crop_%s.wav' % id)
             if not os.path.exists(downsampled_cropped_path):
                 print('downsampling from %s to %s:' % (audio.frame_rate, dest_rate))
                 downsample(cropped_path, downsampled_cropped_path, audio.frame_rate, dest_rate)
 
-            mono_downsampled_cropped_path = os.path.join(folder, 'mono_downsampled_crop_%s.wav' % id)
+            mono_downsampled_cropped_path = os.path.join(audio_folder, 'mono_downsampled_crop_%s.wav' % id)
             if not os.path.exists(mono_downsampled_cropped_path):
                 print('making mono:')
                 make_mono(downsampled_cropped_path, mono_downsampled_cropped_path)
 
             print('extracting signature:')
-            output_path = os.path.join(folder, 'mb_%s.txt' % id)
+            output_path = os.path.join(audio_folder, 'mb_%s.txt' % id)
             if not os.path.exists(output_path):
                 signature[id] = VADMarsbroshok().process(mono_downsampled_cropped_path)
                 signature[id].write(output_path)
 
             for agressiveness in range(4):
-                output_path = os.path.join(folder, 'webrtc%s_%s.txt' % (agressiveness, id))
+                output_path = os.path.join(audio_folder, 'webrtc%s_%s.txt' % (agressiveness, id))
                 if not os.path.exists(output_path):
                     signature[id] = VADWebrtc(agressiveness=agressiveness).process(mono_downsampled_cropped_path)
                     signature[id].write(output_path)
@@ -132,9 +143,8 @@ class VAD(unittest.TestCase):
         # VADMarsbroshok(audio_path).plot_detected_speech_regions()
 
     def test_visualise(self):
-        folder = os.path.join(base_folder, name, 'audio', 'sig')
         signatures = OrderedDict()
-        for sig_path in sorted(glob(os.path.join(folder, '*.txt'))):
+        for sig_path in sorted(glob(os.path.join(vad_folder, '*.txt'))):
         # sig_path = os.path.join(base_folder, 'persona/audio/webrtc_signature_RuBbvBPYCDU.txt')
             label = os.path.splitext(os.path.basename(sig_path))[0]
             signatures[label] = SubSignature.read(sig_path)
@@ -144,7 +154,7 @@ class VAD(unittest.TestCase):
 
 @unittest.skip('slow real test')
 class Fit(unittest.TestCase):
-    def test_fit_persona(self):
+    def test_fit(self):
         warnings.simplefilter("ignore")
         index_path = os.path.join(base_folder, 'subs.json')
         with open(index_path) as f:
