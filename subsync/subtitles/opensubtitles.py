@@ -77,7 +77,7 @@ class OSCrawler:
                 logger.info('sucessfully downloading id=%s', sub_id)
             except:
                 logger.info('failed downloading id=%s', sub_id)
-            time.sleep(30)
+            time.sleep(1 + random.randrange(1000) / 1000)  # sleep random time between 1..2sec
         driver.quit()
 
     @classmethod
