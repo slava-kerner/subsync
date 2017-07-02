@@ -22,12 +22,17 @@ https://github.com/rg3/youtube-dl/blob/master/youtube_dl/downloader/common.py
 https://archive.org/details/feature_films
 
 YOUTUBE ADDING CC
+https://developers.google.com/youtube/v3/docs/captions/list
 https://webapps.stackexchange.com/questions/17471/add-subtitles-to-a-video-of-another-user-on-youtube
 http://www.videoconverterfactory.com/tips/download-youtube-subtitles.html
 http://ncdae.org/resources/cheatsheets/youtube.php
 https://support.google.com/youtube/answer/2734698
 https://support.google.com/youtube/answer/2734796?hl=en
 https://github.com/opensubtitles/service.subtitles.opensubtitles_by_opensubtitles/blob/master/service.py
+
+GOOGLE API
+https://developers.google.com/api-client-library/python/start/installation
+https://developers.google.com/api-client-library/python/auth/api-keys
 
 VAD
 http://www.ofai.at/research/impml/projects/audiostreams/2015_interspeech.pdf
