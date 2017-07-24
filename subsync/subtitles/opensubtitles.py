@@ -58,7 +58,8 @@ class OSCrawler:
 
     def download(self, sub_ids):
         proxy = None#{"http": "http://username:p3ssw0rd@10.10.1.10:3128"}
-        selector = 'body > div.content > div:nth-child(14) > div > div:nth-child(1) > h1 > a'
+        # selector = 'body > div.content > div:nth-child(14) > div > div:nth-child(1) > h1 > a'
+        selector = 'body > div.content > div:nth-child(14) > div > div:nth-child(7) > fieldset > div:nth-child(2) > h3 > div:nth-child(2)'
         uas = LoadUserAgents()
         # print(uas)
         ua = None
